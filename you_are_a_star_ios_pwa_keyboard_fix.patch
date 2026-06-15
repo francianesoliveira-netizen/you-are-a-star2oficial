@@ -1,0 +1,162 @@
+*** Begin Patch
+*** Update File: src/App.tsx
+@@
+-function Field({ label, value, onChange, type="text", placeholder, unit, min, max, step, autoFocus }) {
+-  const idRef = useRef("field_" + Math.random().toString(36).slice(2));
+-  const inputRef = useRef(null);
+-  const displayValue = value == null ? "" : String(value);
+-
+-  const cleanValue = (raw) => {
+-    if (raw == null) return "";
+-    const txt = String(raw);
+-    if (type === "number") return txt.replace(/[^0-9,.]/g, "").replace(",", ".");
+-    return txt;
+-  };
+-
+-  // iOS PWA fix: use native inputs only. No prompt/readOnly/click interception.
+-  const inputType = type === "number" ? "text" : type;
+-  const inputMode = type === "number" ? "decimal" : undefined;
+-
+-  return (
+-    <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+-      {label && <label htmlFor={idRef.current} style={{ fontSize:12, fontWeight:600, color:T.inkM, letterSpacing:"0.03em" }}>{label}</label>}
+-      <div style={{ position:"relative" }}>
+-        <input
+-          ref={inputRef}
+-          id={idRef.current}
+-          type={inputType}
+-          inputMode={inputMode}
+-          enterKeyHint="next"
+-          value={displayValue}
+-          onChange={e => onChange(cleanValue(e.target.value))}
+-          onFocus={() => { try { inputRef.current?.scrollIntoView?.({ block:"center", behavior:"smooth" }); } catch {} }}
+-          placeholder={placeholder}
+-          min={min}
+-          max={max}
+-          step={step}
+-          autoFocus={autoFocus}
+-          autoComplete="off"
+-          style={{
+-            WebkitAppearance:"none", appearance:"none",
+-            WebkitUserSelect:"text", userSelect:"text", WebkitTouchCallout:"default",
+-            touchAction:"auto", pointerEvents:"auto", cursor:"text",
+-            width:"100%", minHeight:48, background:T.sL, border:`1.5px solid ${T.s}`,
+-            borderRadius:12, padding: unit ? "12px 52px 12px 14px" : "12px 14px",
+-            fontSize:16, color:T.ink, outline:"none", lineHeight:"22px",
+-            fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box",
+-          }}
+-        />
+-        {unit && <span style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", fontSize:11, color:T.inkM, fontWeight:700, pointerEvents:"none" }}>{unit}</span>}
+-      </div>
+-    </div>
+-  );
+-}
++function Field({ label, value, onChange, type="text", placeholder, unit, min, max, step, autoFocus }) {
++  const idRef = useRef("field_" + Math.random().toString(36).slice(2));
++  const inputRef = useRef(null);
++  const displayValue = value == null ? "" : String(value);
++
++  const cleanValue = (raw) => {
++    if (raw == null) return "";
++    const txt = String(raw);
++    if (type === "number") return txt.replace(/[^0-9,.]/g, "").replace(",", ".");
++    return txt;
++  };
++
++  // iOS PWA: manter input nativo e evitar type="number", que é instável em alguns webviews instalados.
++  const inputType = type === "number" ? "text" : type;
++  const inputMode = type === "number" ? "decimal" : undefined;
++
++  return (
++    <div style={{ display:"flex", flexDirection:"column", gap:4, touchAction:"auto", pointerEvents:"auto" }}>
++      {label && <label htmlFor={idRef.current} style={{ fontSize:12, fontWeight:600, color:T.inkM, letterSpacing:"0.03em" }}>{label}</label>}
++      <div style={{ position:"relative", touchAction:"auto", pointerEvents:"auto" }}>
++        <input
++          ref={inputRef}
++          id={idRef.current}
++          type={inputType}
++          inputMode={inputMode}
++          enterKeyHint="next"
++          value={displayValue}
++          onChange={e => onChange(cleanValue(e.target.value))}
++          onFocus={() => { try { inputRef.current?.scrollIntoView?.({ block:"center", behavior:"smooth" }); } catch {} }}
++          placeholder={placeholder}
++          min={min}
++          max={max}
++          step={step}
++          autoFocus={autoFocus}
++          autoComplete="off"
++          style={{
++            WebkitAppearance:"none", appearance:"none",
++            WebkitUserSelect:"text", userSelect:"text", WebkitTouchCallout:"default",
++            touchAction:"auto", pointerEvents:"auto", cursor:"text",
++            width:"100%", minHeight:48, background:T.sL, border:`1.5px solid ${T.s}`,
++            borderRadius:12, padding: unit ? "12px 52px 12px 14px" : "12px 14px",
++            fontSize:16, color:T.ink, outline:"none", lineHeight:"22px",
++            fontFamily:"'DM Sans',sans-serif", boxSizing:"border-box",
++          }}
++        />
++        {unit && <span style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", fontSize:11, color:T.inkM, fontWeight:700, pointerEvents:"none" }}>{unit}</span>}
++      </div>
++    </div>
++  );
++}
+@@
+ function Sheet({ open, onClose, title, children }) {
+-  useEffect(() => {
+-    if (open) document.body.style.overflow = "hidden";
+-    else document.body.style.overflow = "";
+-    return () => { document.body.style.overflow = ""; };
+-  }, [open]);
+   useEffect(() => {
+     const h = (e) => { if (e.key === "Escape") onClose(); };
+     if (open) window.addEventListener("keydown", h);
+     return () => window.removeEventListener("keydown", h);
+   }, [open, onClose]);
+   if (!open) return null;
++
++  const closeOnBackdrop = (e) => {
++    if (e.target === e.currentTarget) onClose();
++  };
++
+   return (
+-    <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(4px)", zIndex:200, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
+-      <div onClick={e => e.stopPropagation()} style={{ background:T.w, borderRadius:"24px 24px 0 0", width:"100%", maxWidth:430, maxHeight:"92vh", overflowY:"auto", paddingBottom:40, animation:"slideUp 0.26s cubic-bezier(.32,0,67,0)" }}>
++    <div
++      onClick={closeOnBackdrop}
++      style={{
++        position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(4px)",
++        zIndex:200, display:"flex", alignItems:"flex-end", justifyContent:"center",
++        overflowY:"auto", WebkitOverflowScrolling:"touch", touchAction:"auto", pointerEvents:"auto",
++      }}
++    >
++      <div
++        role="dialog"
++        aria-modal="true"
++        style={{
++          background:T.w, borderRadius:"24px 24px 0 0", width:"100%", maxWidth:430,
++          maxHeight:"calc(100dvh - 24px)", overflowY:"auto", WebkitOverflowScrolling:"touch",
++          paddingBottom:"calc(40px + env(safe-area-inset-bottom))", animation:"slideUp 0.26s cubic-bezier(.32,0,67,0)",
++          touchAction:"auto", pointerEvents:"auto",
++        }}
++      >
+         <div style={{ position:"sticky", top:0, background:T.w, zIndex:1, padding:"16px 20px 14px", borderBottom:`1px solid ${T.sL}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+           <span style={{ fontFamily:"'Playfair Display',serif", fontSize:17, fontWeight:700, color:T.ink }}>{title}</span>
+           <button type="button" onClick={onClose} style={{ background:T.sL, border:"none", borderRadius:"50%", width:30, height:30, cursor:"pointer", fontSize:14, color:T.inkM }}>✕</button>
+         </div>
+*** Update File: index.html
+@@
+-    html, body, #root { min-height: 100%; }
++    html, body, #root { min-height: 100%; }
+     button { -webkit-tap-highlight-color: transparent; }
+     input, textarea, select {
+       -webkit-user-select: text !important;
+       user-select: text !important;
+       touch-action: auto !important;
+       pointer-events: auto !important;
+       font-size: 16px !important;
+     }
++    input:disabled, textarea:disabled, select:disabled {
++      pointer-events: none !important;
++    }
+*** End Patch
