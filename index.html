@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <title>You Are a Star</title>
+    <meta name="yas-version" content="ios-native-input-clean-20260615-v2" />
+    <meta name="description" content="Aplicativo pessoal de acompanhamento da jornada de 180 dias." />
+
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta name="theme-color" content="#838F58" />
+    <meta name="color-scheme" content="light" />
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="You Are a Star" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <meta property="og:title" content="You Are a Star" />
+    <meta property="og:description" content="Jornada de 180 dias: fitness, hábitos, corpo e constância." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <style>
+      html, body, #root { min-height: 100%; margin: 0; }
+      body { background: #FDF0F3; overscroll-behavior-y: none; }
+      @supports (padding: max(0px)) {
+        body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+      }
+    </style>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <style>
+    html, body, #root { min-height: 100%; }
+    button { -webkit-tap-highlight-color: transparent; }
+    input, textarea, select {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+      touch-action: auto !important;
+      pointer-events: auto !important;
+      font-size: 16px !important;
+    }
+  </style>
+</head>
+  <body>
+    <div id="root"></div>
+    <noscript>Ative o JavaScript para usar o You Are a Star.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
