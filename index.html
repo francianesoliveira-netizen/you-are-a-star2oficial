@@ -38,12 +38,21 @@
   <style>
     html, body, #root { min-height: 100%; }
     button { -webkit-tap-highlight-color: transparent; }
+    /* iOS PWA keyboard fix: inputs MUST have font-size >= 16px to prevent zoom,
+       and must never have pointer-events or touch-action blocked. */
     input, textarea, select {
       -webkit-user-select: text !important;
       user-select: text !important;
       touch-action: auto !important;
       pointer-events: auto !important;
       font-size: 16px !important;
+      /* Prevent iOS from zooming on focus — requires font-size:16px above */
+      -webkit-text-size-adjust: none;
+    }
+    /* iOS PWA: never allow overflow:hidden on body to persist —
+       the Sheet component now uses position:fixed instead, which is safe. */
+    body.sheet-open {
+      /* handled via JS: position:fixed + top:-scrollY */
     }
   </style>
 </head>

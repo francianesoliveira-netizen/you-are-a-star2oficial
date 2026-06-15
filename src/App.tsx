@@ -625,10 +625,22 @@ function Field({ label, value, onChange, type="text", placeholder, unit, min, ma
 }
 
 function Sheet({ open, onClose, title, children }) {
+  // iOS PWA FIX: Never use document.body.style.overflow = "hidden" — it prevents
+  // the keyboard from opening on iOS PWA. Instead, lock scroll via position:fixed
+  // while preserving the scroll position, which is iOS-safe.
+  const scrollYRef = useRef(0);
   useEffect(() => {
-    if (open) document.body.style.overflow = "hidden";
-    else document.body.style.overflow = "";
-    return () => { document.body.style.overflow = ""; };
+    if (!open) return;
+    scrollYRef.current = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollYRef.current}px`;
+    document.body.style.width = "100%";
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollYRef.current);
+    };
   }, [open]);
   useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose(); };
@@ -637,8 +649,17 @@ function Sheet({ open, onClose, title, children }) {
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div onClick={onClose} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(4px)", zIndex:200, display:"flex", alignItems:"flex-end", justifyContent:"center" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background:T.w, borderRadius:"24px 24px 0 0", width:"100%", maxWidth:430, maxHeight:"92vh", overflowY:"auto", paddingBottom:40, animation:"slideUp 0.26s cubic-bezier(.32,0,.67,0)" }}>
+    // iOS PWA FIX: Use onPointerDown on backdrop only, not onClick, to avoid
+    // capturing taps meant for inputs. The inner sheet stops propagation.
+    <div
+      style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(4px)", zIndex:200, display:"flex", alignItems:"flex-end", justifyContent:"center" }}
+      onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        onPointerDown={e => e.stopPropagation()}
+        style={{ background:T.w, borderRadius:"24px 24px 0 0", width:"100%", maxWidth:430, maxHeight:"92vh", overflowY:"auto", WebkitOverflowScrolling:"touch", paddingBottom:40, animation:"slideUp 0.26s cubic-bezier(.32,0,.67,0)" }}
+      >
         <div style={{ position:"sticky", top:0, background:T.w, zIndex:1, padding:"16px 20px 14px", borderBottom:`1px solid ${T.sL}`, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <span style={{ fontFamily:"'Playfair Display',serif", fontSize:17, fontWeight:700, color:T.ink }}>{title}</span>
           <button type="button" onClick={onClose} style={{ background:T.sL, border:"none", borderRadius:"50%", width:30, height:30, cursor:"pointer", fontSize:14, color:T.inkM }}>✕</button>
